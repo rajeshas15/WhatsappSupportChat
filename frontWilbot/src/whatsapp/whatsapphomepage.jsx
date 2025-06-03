@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FaUserCircle, FaCog, FaSearch, FaUser, FaBriefcase, FaUserTie, FaUserAlt } from "react-icons/fa";
-import "./WhatsAppHomePage.css";
+import "./whatsapphomepage.css";
 
 const chatList = [
   { id: 1, name: "WilAgent", message: "", time: "", avatar: <FaUserCircle /> },
