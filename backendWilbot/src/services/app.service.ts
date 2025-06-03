@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DATASTAX_LangFlow_API, API_AUTH_KEY } from 'src/default/keyvalues';
+import { DATASTAX_LangFlow_API } from 'src/default/keyvalues';
 import { ChatSessionViewModel } from 'src/view-models/rag.vm';
 import axios from 'axios';
-import { ChatResponse, ResultSection } from 'src/helper/ragflow.interface';
+import { ResultSection } from 'src/helper/ragflow.interface';
+
 
 @Injectable()
 export class AppService {
@@ -20,7 +21,7 @@ export class AppService {
       const response = await axios.post(DATASTAX_LangFlow_API, payload, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_AUTH_KEY} `
+          'Authorization': `Bearer ${process.env.API_AUTH_KEY} `
         },
       });
 
@@ -28,8 +29,7 @@ export class AppService {
       response?.data?.['outputs'].forEach(block => {
         block.outputs.forEach(output => {
           output.messages.forEach(msg => {
-
-            finalMessage['message'] = msg?.['message'];
+            finalMessage = msg
           });
         });
       });
