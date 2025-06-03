@@ -3,10 +3,10 @@ import { FaUserCircle, FaCog, FaSearch, FaUser, FaBriefcase, FaUserTie, FaUserAl
 import "./WhatsAppHomePage.css";
 
 const chatList = [
-  { id: 1, name: "Rajesha", message: "Hey there!", time: "12:45", avatar: <FaUserCircle /> },
-  { id: 2, name: "Joshua", message: "Meeting at 4?", time: "11:15", avatar: <FaUserCircle /> },
-  { id: 3, name: "Rashad", message: "Thanks for the update.", time: "09:30", avatar: <FaUserCircle /> },
-  { id: 4, name: "WilAgent", message: "", time: "", avatar: <FaUserCircle /> },
+  { id: 1, name: "WilAgent", message: "", time: "", avatar: <FaUserCircle /> },
+  { id: 2, name: "Rajesha", message: "Hey there!", time: "12:45", avatar: <FaUserCircle /> },
+  { id: 3, name: "Joshua", message: "Meeting at 4?", time: "11:15", avatar: <FaUserCircle /> },
+  { id: 4, name: "Rashad", message: "Thanks for the update.", time: "09:30", avatar: <FaUserCircle /> },
   { id: 5, name: "Malume", message: "I'll call you later.", time: "Yesterday", avatar: <FaUserCircle /> },
 ];
 
@@ -14,14 +14,73 @@ const chatList = [
 export default function WhatsAppHomePage() {
   const [activeChatId, setActiveChatId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [message, setMessage] = useState("");
+  const [chatHistories, setChatHistories] = useState({});
+  const [isTyping, setIsTyping] = useState(false);
+
+  const sessionId = `user_${activeChatId}`;
 
   const filteredChats = chatList.filter((chat) =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const activeChat = chatList.find(chat => chat.id === activeChatId);
+
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || !activeChat) return;
+
+    const userMessage = {
+      sender: "user",
+      text: message,
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setChatHistories(prev => ({
+      ...prev,
+      [activeChatId]: [...(prev[activeChatId] || []), userMessage]
+    }));
+
+    setMessage("");
+    setIsTyping(true);
+
+    try {
+      const data = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inputValue: message,
+          inputType: "chat",
+          outputType: "chat",
+          sessionId: sessionId,
+        }),
+      });
+
+      const response = await data.json();
+
+      if (response && response.message) {
+        const botMessage = {
+          sender: "bot",
+          text: response.message,
+          timestamp: new Date().toLocaleTimeString(),
+        };
+
+        setChatHistories(prev => ({
+          ...prev,
+          [activeChatId]: [...(prev[activeChatId] || []), botMessage]
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+
   return (
     <div className="whatsapp-container">
-      {/* Sidebar */}
+
       <aside className="sidebar">
         <header className="sidebar-header">
           <div className="logo">WhatsApp</div>
@@ -71,18 +130,62 @@ export default function WhatsAppHomePage() {
         </section>
       </aside>
 
-      {/* Chat Window */}
       <main className="chat-window">
-        <div className="welcome">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-            alt="WhatsApp Logo"
-            className="welcome-image"
-          />
-          <h2>WhatsApp Web</h2>
-          <p>Send and receive messages without keeping your phone online.</p>
-        </div>
+        {activeChat ? (
+          <div className="chat-content">
+            <header className="chat-header">
+              <div className="chat-avatar">{activeChat.avatar}</div>
+              <div className="chat-info">
+                <h3>{activeChat.name}</h3>
+              </div>
+              <div className="chat-icons">
+                <FaSearch title="Search in chat" className="chat-search-icon" style={{ cursor: "pointer", fontSize: "1.2em" }} />
+              </div>
+            </header>
+            <div className="chat-body">
+              {(chatHistories[activeChatId] || []).map((msg, index) => (
+                <div
+                  key={index}
+                  className={`chat-bubble ${msg.sender === "user" ? "sent" : "received"}`}
+                >
+                  {msg.text}
+                </div>
+              ))}
+
+              {isTyping && (
+                <div className="chat-bubble received typing-indicator">
+                  Typing...
+                </div>
+              )}
+            </div>
+
+            <footer className="chat-footer">
+              <input
+                type="text"
+                placeholder="Type a message"
+                className="chat-input"
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter") handleSendMessage();
+                }}
+              />
+              <button className="send-button" onClick={handleSendMessage}>Send</button>
+            </footer>
+          </div>
+        ) : (
+          <div className="welcome">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp Logo"
+              className="welcome-image"
+            />
+            <h2>WhatsApp Web</h2>
+            <p>Send and receive messages without keeping your phone online.</p>
+          </div>
+        )}
       </main>
+
     </div>
   );
-}
+} 
