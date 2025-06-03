@@ -18,7 +18,6 @@ export default function WhatsAppHomePage() {
   const [chatHistories, setChatHistories] = useState({});
   const [isTyping, setIsTyping] = useState(false);
 
-  const sessionId = `user_${activeChatId}`;
 
   const filteredChats = chatList.filter((chat) =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -29,6 +28,8 @@ export default function WhatsAppHomePage() {
 
   const handleSendMessage = async () => {
     if (!message.trim() || !activeChat) return;
+
+    const sessionId = `usersession${activeChatId}`;
 
     const userMessage = {
       sender: "user",
@@ -45,33 +46,48 @@ export default function WhatsAppHomePage() {
     setIsTyping(true);
 
     try {
-      const data = await fetch("http://localhost:8000/chat", {
+      const res = await fetch("http://localhost:8000/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           inputValue: message,
           inputType: "chat",
           outputType: "chat",
-          sessionId: sessionId,
+          sessionId: sessionId
         }),
       });
 
-      const response = await data.json();
+      const statusCode = res.status;
+      const data = await res.json();
+      let botText = data?.message;
 
-      if (response && response.message) {
-        const botMessage = {
-          sender: "bot",
-          text: response.message,
-          timestamp: new Date().toLocaleTimeString(),
-        };
-
-        setChatHistories(prev => ({
-          ...prev,
-          [activeChatId]: [...(prev[activeChatId] || []), botMessage]
-        }));
+      if (!botText || statusCode === 504) {
+        botText = "There was a temporary issue processing your request. Please retry shortly.";
       }
+
+      const botMessage = {
+        sender: "bot",
+        text: botText,
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      setChatHistories(prev => ({
+        ...prev,
+        [activeChatId]: [...(prev[activeChatId] || []), botMessage]
+      }));
     } catch (error) {
       console.error("Failed to send message:", error);
+
+      const fallbackMessage = {
+        sender: "bot",
+        text: "There was a temporary issue processing your request. Please retry shortly.",
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      setChatHistories(prev => ({
+        ...prev,
+        [activeChatId]: [...(prev[activeChatId] || []), fallbackMessage]
+      }));
     } finally {
       setIsTyping(false);
     }
