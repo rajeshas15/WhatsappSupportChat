@@ -23,6 +23,7 @@ export class AppService {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.API_AUTH_KEY} `
         },
+        timeout:1000 * 60 * 5
       });
 
       let finalMessage;
