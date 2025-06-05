@@ -46,20 +46,18 @@ a:hover {
   text-decoration: underline;
 }
 
-/* === Layout === */
 .whatsapp-container {
   display: grid;
-  grid-template-columns: clamp(260px, 30%, 380px) 1fr;
   height: 100vh;
   overflow: hidden;
+  grid-template-columns: clamp(260px, 30%, 380px) 1fr;
 }
 
-/* === Sidebar === */
 .sidebar {
+  background-color: #f0f0f0;
+  border-right: 1px solid #ccc;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg-sidebar);
-  border-right: 1px solid var(--color-border);
 }
 
 .sidebar-header {
@@ -84,7 +82,7 @@ a:hover {
   color: var(--color-text-muted);
 }
 
-/* === Search Bar === */
+
 .search-bar {
   padding: 0.75rem;
   background: #f6f6f6;
@@ -117,6 +115,7 @@ a:hover {
 .chat-list::-webkit-scrollbar {
   width: 6px;
 }
+
 .chat-list::-webkit-scrollbar-thumb {
   background-color: var(--color-scroll-thumb);
   border-radius: 8px;
@@ -143,7 +142,6 @@ a:hover {
 .chat-details {
   display: flex;
   flex-direction: column;
-  min-width: 0;
 }
 
 .chat-header {
@@ -183,13 +181,14 @@ a:hover {
   text-overflow: ellipsis;
 }
 
-/* === Chat Window === */
+
 .chat-window {
   display: flex;
   flex-direction: column;
   background-color: var(--color-bg-chat);
   overflow: hidden;
 }
+
 
 .chat-header-bar {
   display: flex;
@@ -338,14 +337,41 @@ a:hover {
 
 /* === Responsive Adjustments === */
 @media (max-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+
+  .chat-message {
+    display: none;
+  }
+
+  .chat-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-name {
+    flex: 1;
+    overflow: hidden;
+  }
+
+
+  .chat-time {
+    font-size: 0.65rem;
+    color: #999;
+    flex-shrink: 0;
+  }
+
   .whatsapp-container {
     grid-template-columns: 1fr;
   }
 
-  .chat-window {
-    display: none;
+  .chat-window.active {
+    display: flex;
+    flex-direction: column;
   }
 }
+
 
 /* === Light Mode Preference === */
 @media (prefers-color-scheme: light) {
