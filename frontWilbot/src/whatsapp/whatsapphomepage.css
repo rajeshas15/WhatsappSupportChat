@@ -123,6 +123,9 @@ a:hover {
 
 .chat-item {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 1rem;
   padding: 0.75rem 1rem;
   cursor: pointer;
@@ -130,18 +133,23 @@ a:hover {
   transition: background-color 0.2s;
 }
 
+
+
 .chat-item:hover {
   background-color: var(--color-hover);
 }
 
+
 .chat-avatar {
-  font-size: 2.5rem;
-  margin-right: 1rem;
+   font-size: 2.5rem;
+  padding-left: 2%;
 }
 
 .chat-details {
   display: flex;
   flex-direction: column;
+  padding-right: 2%;
+  flex: 1;
 }
 
 .chat-header {
@@ -345,21 +353,39 @@ a:hover {
     display: none;
   }
 
-  .chat-details {
-    display: flex;
-    flex-direction: column;
-  }
-
   .chat-name {
     flex: 1;
     overflow: hidden;
   }
 
-
   .chat-time {
     font-size: 0.65rem;
     color: #999;
     flex-shrink: 0;
+  }
+
+  .chat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .chat-avatar {
+    font-size: 2.5rem;
+    padding-left: 2%;
+  }
+
+  .chat-details {
+    display: flex;
+    flex-direction: column;
+    padding-right: 2%;
+    flex: 1;
+  }
+
+  .chat-header {
+    font-size: 0.9rem;
+    color: var(--color-text-main);
   }
 
   .whatsapp-container {
