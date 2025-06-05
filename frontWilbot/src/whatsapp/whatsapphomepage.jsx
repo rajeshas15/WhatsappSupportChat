@@ -21,6 +21,18 @@ export default function WhatsAppHomePage() {
   const [showChatWindow, setShowChatWindow] = useState(false);
 
   useEffect(() => {
+    const storedHistories = localStorage.getItem("chatHistories");
+    if (storedHistories) {
+      setChatHistories(JSON.parse(storedHistories));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("chatHistories", JSON.stringify(chatHistories));
+  }, [chatHistories]);
+
+
+  useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 768;
       setIsMobile(mobile);
@@ -28,11 +40,9 @@ export default function WhatsAppHomePage() {
         setShowChatWindow(false); // Reset view toggle on desktop
       }
     };
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
 
   const filteredChats = chatList.filter((chat) =>
     chat.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -43,7 +53,9 @@ export default function WhatsAppHomePage() {
   const handleSendMessage = async () => {
     if (!message.trim() || !activeChat) return;
 
-    const sessionId = `usersession${activeChatId}`;
+    const timestamp = Date.now(); 
+    const sessionId = `usersession_${activeChatId}_${timestamp}`;
+
 
     const userMessage = {
       sender: "user",
@@ -69,6 +81,7 @@ export default function WhatsAppHomePage() {
           outputType: "chat",
           sessionId: sessionId
         }),
+        signal: AbortSignal.timeout(1000 * 60 * 10) 
       });
 
       const statusCode = res.status;
